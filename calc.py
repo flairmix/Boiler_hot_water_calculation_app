@@ -1,6 +1,4 @@
 
-pi = 3.14159265359
-
 
 def GCalh_to_kW(power_Gcal_h):
     return power_Gcal_h * 1163
@@ -57,68 +55,3 @@ def dp(Gmax, kvs):
     """
     return Gmax / kvs
     
-
-if __name__ == '__main__':
-    
-    dn1 = pipeDn(3.8, 1)
-    print(f"PipeDN собственные нужды - {dn1}")
-
-    dn11 = pipeDn(84, 1.5)
-    dn12 = pipeDn(10, 1.5)
-    print(f"PipeDN котел 1 - {dn11}")
-    print(f"PipeDN котел 2 - {dn12}")
-
-    print("__________________")    
-    print("__________________")    
-    print("ГВС")
-    G = 32.30
-    dt = 20
-    dn1_hws = pipeDn(G, 1.5)
-    print(f"PipeDN ГВС греющий - {dn1_hws}")
-    print("__________________")
-
-    print("клапан трехходовой ГВС")
-    G_hws = 32.30
-    dp = 0.3
-    kvs_hws = kv(G_hws, dp)
-
-    print(f"расход гвс - {G_hws}  t/h")
-    print(f"dp гвс - {dp} bar")
-    print(f"kv гвс - {kvs_hws} t/h")
-    kvs_valve = 61
-    dp_valve = G_hws / kvs_valve
-    DN_valve = 65
-
-    print(f"kvs клапана - {kvs_valve} t/h")
-    print(f"dp клапана - {dp_valve} bar")
-    print(f"DN клапана - {DN_valve} mm")
-    print("__________________")    
-
-
-    print("__________________")    
-    print("Отопление")
-    Gh = 143.48
-    dt = 25
-    dn1_h = pipeDn(Gh, 1.5)
-    print(f"PipeDN отопление греющий - {dn1_h}")
-    print("__________________")
-
-    print("клапан трехходовой ГВС")
-    dp = 0.5
-    kvs_h = kv(Gh, dp)
-
-    print(f"расход отопление - {Gh}  t/h")
-    print(f"dp отопление - {dp:.2f} bar")
-    print(f"kv отопление - {kvs_h:.2f} t/h")
-    kvs_valve = 220
-    dp_valve = Gh / kvs_valve
-    DN_valve = 125
-
-    print(f"kvs клапана - {kvs_valve:.2f} t/h")
-    print(f"dp клапана - {dp_valve:.2f} bar")
-    print(f"DN клапана - {DN_valve} mm")
-    print("__________________")    
-
-
-    dn1_hws = pipeDn(1.61, 1)
-    print(dn1_hws)
