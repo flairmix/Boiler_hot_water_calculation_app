@@ -138,20 +138,19 @@ class Boiler():
         for i in range(0, len(hours_x), 1):
             if (i == 0):
                 plt.text(hours_x[i], self.hw_reserve_and_boil[i], f"{round(self.hw_reserve_and_boil[i],1)} м3/ч")
-            elif (i != 0 and self.hw_reserve_and_boil[i] != self.hw_reserve_and_boil[i-1]):
+            elif (i != 0 and abs(self.hw_reserve_and_boil[i] - self.hw_reserve_and_boil[i-1]) > 0.5):
                 plt.text(hours_x[i]+0.5, self.hw_reserve_and_boil[i], f"{round(self.hw_reserve_and_boil[i],1)} м3/ч")
-        
         
         for i in range(0, len(hours_x), 1):
             if (i == 0):
                 plt.text(hours_x[i], self.consumption_by_hours_24[i], f"{round(self.consumption_by_hours_24[i],1)} м3/ч")
-            elif (i != 0 and self.consumption_by_hours_24[i] != self.consumption_by_hours_24[i-1]):
+            elif (i != 0 and abs(self.consumption_by_hours_24[i] - self.consumption_by_hours_24[i-1]) > 0.5):
                 plt.text(hours_x[i], self.consumption_by_hours_24[i], f"{round(self.consumption_by_hours_24[i],1)} м3/ч")
 
 
         plt.plot(hours_x, [0 for i in range(len(hours_x))], "r-")
-        plt.plot(hours_x, self.consumption_by_hours_24, "-", label='Потребление горячей воды 65гр')
-        plt.plot(hours_x, self.hw_reserve_and_boil, "-", label='Количество горячей воды 65гр')
+        plt.plot(hours_x, self.consumption_by_hours_24, "bo-", label='Потребление горячей воды 65гр')
+        plt.plot(hours_x, self.hw_reserve_and_boil, "go-", label='Количество горячей воды 65гр')
 
 
         plt.title("Запас горячей воды в бойлере")
