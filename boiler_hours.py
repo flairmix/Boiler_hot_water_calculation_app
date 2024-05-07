@@ -17,41 +17,6 @@ def heating_water(Q_kW, G_m3_h, t2)  -> float:
 def heating_water_G(Q_kW, t2, t1) -> float:
     return abs(Q_kW / 1.163 / (t2 - t1))
 
-def plot_water(hours, days,consumption:list, hw_reserve:list, hw_reserve_and_boil:list) -> None:
-
-    hours_x = np.array([i for i in range(0, (hours - days), 1)]) ### !
-    consumption_y = np.array(consumption)
-
-
-    hw_reserve_y = np.array(hw_reserve)
-    hw_reserve_and_boil_y = np.array(hw_reserve_and_boil)
-
-
-    plt.figure(figsize=(24, 12), dpi=80)
-
-
-    # plt.ylim(0, max(consumption_y)+1)
-    plt.xticks(hours_x)
-    plt.yticks([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 20])
-
-    for i in range(0, len(hours_x), 2):
-        plt.text(hours_x[i],hw_reserve_and_boil_y[i], f"{round(hw_reserve_and_boil_y[i],2)} м3/ч")
-
-
-    plt.plot(hours_x, consumption_y, "-", label='Потребление горячей воды 65гр')
-    plt.plot(hours_x, hw_reserve_and_boil_y, "-", label='Количество горячей воды 65гр')
-
-    # plt.plot(hours_X, consumption_Y, label='Потребление горячей воды 65гр')
-    # plt.plot(X_, Y_, label='Количество горячей воды 65гр')
-
-    plt.title("Запас горячей воды в бойлере")
-    plt.xlabel('hours')
-    plt.ylabel('consumption')
-    plt.grid(True)
-    plt.legend()
-
-    plt.show()
-
 
 class Boiler():
     def __init__(self,
@@ -90,67 +55,72 @@ class Boiler():
 
     def calculate(self):
 
-        #save the init consume of 65 water
-        self.consumption_by_hours_24_65 = self.consumption_by_hours_24 * self.days
-        print(f"self.consumption_by_hours_24_65 - {self.consumption_by_hours_24_65}")
-        print(f"len self.consumption_by_hours_24_65 - {len(self.consumption_by_hours_24_65)}")
+        if (self.days <= 0):
+            msg_error = f"ERROR - days must more then 0, but {self.days} instead"
+            raise Exception(msg_error)
 
-        # case if we want to overheat t3 vore then 65 degrees 
-        if self.t3_boiler != 65:
-            power_hw = [i*1.163*(self.t3-self.tw1) for i in self.consumption_by_hours_24]
-            self.consumption_by_hours_24 = [round(i/1.163/(self.t3_boiler-self.tw1),3) for i in power_hw]
+        try:
+            #save the init consume of 65 water
+            self.consumption_by_hours_24_65 = self.consumption_by_hours_24 * self.days
+        
+            # case if we want to overheat t3 vore then 65 degrees 
+            if self.t3_boiler != 65:
+                power_hw = [i*1.163*(self.t3-self.tw1) for i in self.consumption_by_hours_24]
+                self.consumption_by_hours_24 = [round(i/1.163/(self.t3_boiler-self.tw1),3) for i in power_hw]
 
+            self.consumption_by_hours_24 = self.consumption_by_hours_24 * self.days
 
-        self.consumption_by_hours_24 = self.consumption_by_hours_24 * self.days
-        print(f"self.consumption_by_hours_24 - {self.consumption_by_hours_24}")
-        print(f"len self.consumption_by_hours_24 - {len(self.consumption_by_hours_24)}")
+            for i in range(1, len(self.consumption_by_hours_24)):
+                self.hw_reserve.append(round(self.hw_reserve[i-1] + self.consumption_by_hours_24[i], 3))
+            
+            self.boiler_heating_G = round(heating_water_G(Q_kW=self.power_result_kW, t1=self.t3_boiler, t2=self.tw1), 2)
 
+            for i in range(1, (self.hours)):
+                self.hw_reserve_and_boil.append(round(self.hw_reserve_and_boil[i-1] + self.boiler_heating_G + self.consumption_by_hours_24[i], 2))
 
-        for i in range(1, len(self.consumption_by_hours_24)):
-            self.hw_reserve.append(round(self.hw_reserve[i-1] + self.consumption_by_hours_24[i], 3))
-
-        print(f"self.hw_reserve - {self.hw_reserve}")
-        print(f"len self.hw_reserve - {len(self.hw_reserve)}")
-
-        self.boiler_heating_G = round(heating_water_G(Q_kW=self.power_result_kW, t1=self.t3_boiler, t2=self.tw1), 2)
-        print(f"self.boiler_heating_G - {self.boiler_heating_G}")
-
-        # for i in range(1, (self.hours - self.days)):
-        for i in range(1, (self.hours)):
-            self.hw_reserve_and_boil.append(round(self.hw_reserve_and_boil[i-1] + self.boiler_heating_G + self.consumption_by_hours_24[i], 2))
-
-            if self.hw_reserve_and_boil[i] > self.boiler_volume_m3:  
-                self.hw_reserve_and_boil[i] = self.boiler_volume_m3
-
-        print(f"self.hw_reserve_and_boil - {self.hw_reserve_and_boil}")
-        print(f"len self.hw_reserve_and_boil - {len(self.hw_reserve_and_boil)}")
+                if self.hw_reserve_and_boil[i] > self.boiler_volume_m3:  
+                    self.hw_reserve_and_boil[i] = self.boiler_volume_m3
+            
+        except IndexError:
+            if (len(self.consumption_by_hours_24) != 24):
+                msg_error = f"ERROR - consumption_by_hours_24 not properly size (must be 24 value long, but - {len(self.consumption_by_hours_24)} instead)"
+                raise Exception(msg_error)
 
 
-    def plot_boiler(self):
 
+    def plot_boiler(self, consumption = 'decrease'):
+        '''
+        consumption = 'decrease' / 'increase'
+        '''
         hours_x = [i for i in range(0, self.hours)]
+
+        if consumption == 'increase':
+            consumption_by_hours_24 = [abs(i) for i in self.consumption_by_hours_24]
+        else:
+            consumption_by_hours_24 = self.consumption_by_hours_24
+
 
         plt.figure(figsize=(24, 12), dpi=80)
         plt.xlim(0, int(max(self.hw_reserve_and_boil)+2))
-        plt.xticks([i for i in range(0, len(hours_x)+2, int(len(hours_x) / 48))])
+        plt.xticks([i for i in range(0, len(hours_x)+2, max(int(len(hours_x) / 48), 1))])
         plt.yticks([i for i in range(int(min(self.consumption_by_hours_24)), int(max(self.hw_reserve_and_boil)+2), 1)])
 
         for i in range(0, len(hours_x), 1):
             if (i == 0):
-                plt.text(hours_x[i], self.hw_reserve_and_boil[i], f"{round(self.hw_reserve_and_boil[i],1)} м3/ч")
+                plt.text(hours_x[i], self.hw_reserve_and_boil[i]+0.2, f"{round(self.hw_reserve_and_boil[i], 1)} м3/ч")
             elif (i != 0 and abs(self.hw_reserve_and_boil[i] - self.hw_reserve_and_boil[i-1]) > 0.5):
-                plt.text(hours_x[i]+0.5, self.hw_reserve_and_boil[i], f"{round(self.hw_reserve_and_boil[i],1)} м3/ч")
+                plt.text(hours_x[i]+0.5, self.hw_reserve_and_boil[i]+0.2, f"{round(self.hw_reserve_and_boil[i], 1)} м3/ч")
         
         for i in range(0, len(hours_x), 1):
             if (i == 0):
-                plt.text(hours_x[i], self.consumption_by_hours_24[i], f"{round(self.consumption_by_hours_24[i],1)} м3/ч")
-            elif (i != 0 and abs(self.consumption_by_hours_24[i] - self.consumption_by_hours_24[i-1]) > 0.5):
-                plt.text(hours_x[i], self.consumption_by_hours_24[i], f"{round(self.consumption_by_hours_24[i],1)} м3/ч")
+                plt.text(hours_x[i], consumption_by_hours_24[i]-0.8, f"{round(consumption_by_hours_24[i], 1)} м3/ч")
+            elif (i != 0 and abs(consumption_by_hours_24[i] - consumption_by_hours_24[i-1]) > 0.5):
+                plt.text(hours_x[i], consumption_by_hours_24[i]-0.8, f"{round(consumption_by_hours_24[i], 1)} м3/ч")
 
 
         plt.plot(hours_x, [0 for i in range(len(hours_x))], "r-")
-        plt.plot(hours_x, self.consumption_by_hours_24, "bo-", label='Потребление горячей воды 65гр')
-        plt.plot(hours_x, self.hw_reserve_and_boil, "go-", label='Количество горячей воды 65гр')
+        plt.plot(hours_x, consumption_by_hours_24, "b.-", label='Потребление горячей воды 65гр')
+        plt.plot(hours_x, self.hw_reserve_and_boil, "g.-", label='Количество горячей воды 65гр')
 
 
         plt.title("Запас горячей воды в бойлере")
@@ -158,7 +128,6 @@ class Boiler():
         plt.ylabel('consumption')
         plt.grid(True)
         plt.legend()
-
         plt.show()
 
 
