@@ -74,6 +74,7 @@ class Boiler():
                 self.hw_reserve.append(round(self.hw_reserve[i-1] + self.consumption_by_hours_24[i], 3))
             
             self.boiler_heating_G = round(heating_water_G(Q_kW=self.power_result_kW, t1=self.t3_boiler, t2=self.tw1), 2)
+            self.boiler_heating_G_list = [min(self.boiler_heating_G, abs(i)) for i in self.consumption_by_hours_24]
 
             for i in range(1, (self.hours)):
                 self.hw_reserve_and_boil.append(round(self.hw_reserve_and_boil[i-1] + self.boiler_heating_G + self.consumption_by_hours_24[i], 2))
@@ -99,11 +100,11 @@ class Boiler():
         else:
             consumption_by_hours_24 = self.consumption_by_hours_24
 
-
         plt.figure(figsize=(24, 12), dpi=80)
-        plt.xlim(0, int(max(self.hw_reserve_and_boil)+2))
+        plt.ylim(0, int(max(self.hw_reserve_and_boil)+5))
+
         plt.xticks([i for i in range(0, len(hours_x)+2, max(int(len(hours_x) / 48), 1))])
-        plt.yticks([i for i in range(int(min(self.consumption_by_hours_24)), int(max(self.hw_reserve_and_boil)+2), 1)])
+        plt.yticks([i for i in range(int(min(self.consumption_by_hours_24))-2, int(max(self.hw_reserve_and_boil))+5, 1)])
 
         for i in range(0, len(hours_x), 1):
             if (i == 0):
@@ -118,9 +119,14 @@ class Boiler():
                 plt.text(hours_x[i], consumption_by_hours_24[i]-0.8, f"{round(consumption_by_hours_24[i], 1)} м3/ч")
 
 
-        plt.plot(hours_x, [0 for i in range(len(hours_x))], "r-")
-        plt.plot(hours_x, consumption_by_hours_24, "b.-", label='Потребление горячей воды 65гр')
-        plt.plot(hours_x, self.hw_reserve_and_boil, "g.-", label='Количество горячей воды 65гр')
+        if self.t3_boiler != self.t3:
+            plt.plot(hours_x, self.consumption_by_hours_24_65, ".-", label=f'Расход горячей воды {self.t3} гр')
+            plt.yticks([i for i in range(int(min(self.consumption_by_hours_24_65))-2, int(max(self.hw_reserve_and_boil) +5), 1)])
+
+        plt.plot(hours_x, [0] * len(hours_x), "r-")
+        plt.plot(hours_x, consumption_by_hours_24, "b.-", label=f'Расход горячей воды из бойлера {self.t3_boiler} гр')
+        plt.plot(hours_x, self.hw_reserve_and_boil, "g.-", label=f'Запас воды в бойлере {self.t3_boiler} гр')
+        plt.plot(hours_x, self.boiler_heating_G_list, ".-", label=f'Нагрев воды бойлере до {self.t3_boiler} гр')
 
 
         plt.title("Запас горячей воды в бойлере")
@@ -134,14 +140,14 @@ class Boiler():
     def create_df(self) -> None:
         # data = pd.DataFrame([i for i in range(len(self.consumption_by_hours_24))], columns=["час"])
         
-        self.data["Резерв ГВС в начале часа, м3/ч"] = [12.0]+[self.hw_reserve_and_boil[i-1] for i in range(1, len(self.hw_reserve_and_boil))]
+        self.data["Резерв ГВС в начале часа, м3/ч"] = [self.hw_reserve_and_boil[i-1] for i in range(1, len(self.hw_reserve_and_boil)+1)]
         
         self.data["Расход_65гр, м3/ч"] = self.consumption_by_hours_24_65
         
         if self.t3_boiler != self.t3:
             self.data["Расход_воды_из бойлера, м3/ч"] = self.consumption_by_hours_24
 
-        self.data["Нагрев, м3/ч"] = [self.boiler_heating_G for i in range(len(self.hw_reserve_and_boil))]
+        self.data["Нагрев, м3/ч"] = [self.boiler_heating_G] *len(self.hw_reserve_and_boil)
 
         self.data["Резерв ГВС в конце часа, м3/ч"] = self.hw_reserve_and_boil
          
