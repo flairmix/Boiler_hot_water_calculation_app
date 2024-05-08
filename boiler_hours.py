@@ -83,7 +83,7 @@ class Boiler():
             
         except IndexError:
             if (len(self.consumption_by_hours_24) != 24):
-                msg_error = f"ERROR - consumption_by_hours_24 not properly size (must be 24 value long, but - {len(self.consumption_by_hours_24)} instead)"
+                msg_error = f"ERROR - consumption_by_hours_24 not properly size (must be {self.consumption_by_hours_24_65} value long, but - {len(self.consumption_by_hours_24)} instead)"
                 raise Exception(msg_error)
 
 
