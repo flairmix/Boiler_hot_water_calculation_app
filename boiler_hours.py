@@ -65,16 +65,17 @@ class Boiler():
         
             # case if we want to overheat t3 vore then 65 degrees 
             if self.t3_boiler != 65:
-                power_hw = [i*1.163*(self.t3-self.tw1) for i in self.consumption_by_hours_24]
+                power_hw = [(i*1.163*(self.t3-self.tw1)) for i in self.consumption_by_hours_24 * self.days]
                 self.consumption_by_hours_24 = [round(i/1.163/(self.t3_boiler-self.tw1),3) for i in power_hw]
-
-            self.consumption_by_hours_24 = self.consumption_by_hours_24 * self.days
+            else:
+                self.consumption_by_hours_24 = self.consumption_by_hours_24 * self.days
 
             for i in range(1, len(self.consumption_by_hours_24)):
                 self.hw_reserve.append(round(self.hw_reserve[i-1] + self.consumption_by_hours_24[i], 3))
             
             self.boiler_heating_G = round(heating_water_G(Q_kW=self.power_result_kW, t1=self.t3_boiler, t2=self.tw1), 2)
-            self.boiler_heating_G_list = [min(self.boiler_heating_G, abs(i)) for i in self.consumption_by_hours_24]
+            
+            self.boiler_heating_G_list = [min(abs(self.boiler_heating_G), abs(i)) for i in self.consumption_by_hours_24]
 
             for i in range(1, (self.hours)):
                 self.hw_reserve_and_boil.append(round(self.hw_reserve_and_boil[i-1] + self.boiler_heating_G + self.consumption_by_hours_24[i], 2))
@@ -83,8 +84,8 @@ class Boiler():
                     self.hw_reserve_and_boil[i] = self.boiler_volume_m3
             
         except IndexError:
-            if (len(self.consumption_by_hours_24) != 24):
-                msg_error = f"ERROR - consumption_by_hours_24 not properly size (must be {self.consumption_by_hours_24_65} value long, but - {len(self.consumption_by_hours_24)} instead)"
+            if (len(self.consumption_by_hours_24 * self.days) % 24 != 0):
+                msg_error = f"ERROR - consumption_by_hours_24 not properly size (must be {len(self.consumption_by_hours_24_65)} value long, but - {len(self.consumption_by_hours_24)} instead)"
                 raise Exception(msg_error)
 
 
@@ -140,7 +141,7 @@ class Boiler():
     def create_df(self) -> None:
         # data = pd.DataFrame([i for i in range(len(self.consumption_by_hours_24))], columns=["час"])
         
-        self.data["Резерв ГВС в начале часа, м3/ч"] = [self.hw_reserve_and_boil[i-1] for i in range(1, len(self.hw_reserve_and_boil)+1)]
+        self.data["Резерв ГВС в начале часа, м3/ч"] = [self.boiler_volume_m3] + [self.hw_reserve_and_boil[i-1] for i in range(1, len(self.hw_reserve_and_boil))]
         
         self.data["Расход_65гр, м3/ч"] = self.consumption_by_hours_24_65
         
