@@ -139,6 +139,7 @@ class Boiler():
 
 
     def create_df(self) -> None:
+
         # data = pd.DataFrame([i for i in range(len(self.consumption_by_hours_24))], columns=["час"])
         
         self.data["Резерв ГВС в начале часа, м3/ч"] = [self.boiler_volume_m3] + [self.hw_reserve_and_boil[i-1] for i in range(1, len(self.hw_reserve_and_boil))]
@@ -152,6 +153,10 @@ class Boiler():
 
         self.data["Резерв ГВС в конце часа, м3/ч"] = self.hw_reserve_and_boil
          
+    def update_df(self) -> None:
+        pass
+
+
     def print_df(self) -> None:
         try:
             print(self.data)
