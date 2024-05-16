@@ -82,6 +82,9 @@ class Boiler():
 
                 if self.hw_reserve_and_boil[i] > self.boiler_volume_m3:  
                     self.hw_reserve_and_boil[i] = self.boiler_volume_m3
+
+                if self.hw_reserve_and_boil[i] < 0:  
+                    self.hw_reserve_and_boil[i] = 0
             
         except IndexError:
             if (len(self.consumption_by_hours_24 * self.days) % 24 != 0):
@@ -123,6 +126,9 @@ class Boiler():
         if self.t3_boiler != self.t3:
             plt.plot(hours_x, self.consumption_by_hours_24_65, ".-", label=f'Расход горячей воды {self.t3} гр')
             plt.yticks([i for i in range(int(min(self.consumption_by_hours_24_65))-2, int(max(self.hw_reserve_and_boil) +5), 1)])
+
+        # hw_reserve_and_boil_plot = [i if i>0 else 0 for i in self.hw_reserve_and_boil]
+
 
         plt.plot(hours_x, [0] * len(hours_x), "r-")
         plt.plot(hours_x, consumption_by_hours_24, "b.-", label=f'Расход горячей воды из бойлера {self.t3_boiler} гр')
