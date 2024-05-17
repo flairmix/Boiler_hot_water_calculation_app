@@ -1,4 +1,5 @@
 import sys
+import random
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import QRectF, Slot
@@ -47,6 +48,7 @@ boiler_inputs = {"name" : "calculation_name",
                 }
 
 
+
 class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=24, height=8, dpi=100, hours=24, boiler=Boiler(**boiler_inputs), consumption='decrease'):
         '''
@@ -59,8 +61,6 @@ class MplCanvas(FigureCanvas):
         self.axes = fig.add_subplot(111)
 
         for i in range(0, len(hours_x), 1):
-            print(i)
-            print(boiler.hw_reserve_and_boil[i])
             if (i == 0):
                 plt.text(hours_x[i], boiler.hw_reserve_and_boil[i]+0.2, f"{round(boiler.hw_reserve_and_boil[i], 1)} м3/ч")
             elif (i != 0 and abs(boiler.hw_reserve_and_boil[i] - boiler.hw_reserve_and_boil[i-1]) > 0.5):
@@ -90,7 +90,35 @@ class MplCanvas(FigureCanvas):
                                    QtWidgets.QSizePolicy.Expanding,
                                    QtWidgets.QSizePolicy.Expanding)
         
-        # FigureCanvas.updateGeometry(self)
+
+    def update_data(self, hours=24, boiler=Boiler(**boiler_inputs), consumption='decrease'):
+        
+        hours_x = [i for i in range(0, hours)]
+        
+        for i in range(0, len(hours_x), 1):
+            if (i == 0):
+                plt.text(hours_x[i], boiler.hw_reserve_and_boil[i]+0.2, f"{round(boiler.hw_reserve_and_boil[i], 1)} м3/ч")
+            elif (i != 0 and abs(boiler.hw_reserve_and_boil[i] - boiler.hw_reserve_and_boil[i-1]) > 0.5):
+                plt.text(hours_x[i]+0.5, boiler.hw_reserve_and_boil[i]+0.2, f"{round(boiler.hw_reserve_and_boil[i], 1)} м3/ч")
+
+        for i in range(0, len(hours_x), 1):
+            if (i == 0):
+                plt.text(hours_x[i], boiler.consumption_by_hours_24[i]-0.8, f"{round(boiler.consumption_by_hours_24[i], 1)} м3/ч")
+            elif (i != 0 and abs(boiler.consumption_by_hours_24[i] - boiler.consumption_by_hours_24[i-1]) > 0.5):
+                plt.text(hours_x[i], boiler.consumption_by_hours_24[i]-0.8, f"{round(boiler.consumption_by_hours_24[i], 1)} м3/ч")
+
+
+        self.axes.plot(hours_x, [0] * len(hours_x), "r-")
+        self.axes.plot(hours_x, boiler.consumption_by_hours_24, "b.-", label=f'Расход горячей воды из бойлера {boiler.t3_boiler} гр')
+        self.axes.plot(hours_x, boiler.hw_reserve_and_boil, "g.-", label=f'Запас воды в бойлере {boiler.t3_boiler} гр')
+        self.axes.plot(hours_x, boiler.boiler_heating_G_list, ".-", label=f'Нагрев воды бойлере до {boiler.t3_boiler} гр')    
+               
+        plt.title("Запас горячей воды в бойлере")
+        plt.xlabel('hours')
+        plt.ylabel('consumption')
+        plt.grid(True)
+        plt.legend()  
+  
 
 
 class App(QMainWindow):
@@ -118,12 +146,22 @@ class App(QMainWindow):
         vbox.addWidget(self.action_button)
         vbox.addWidget(self.mpl)
         
+        
         # Применяем вертикальную сетку к центральному виджету
         self.central_widget.setLayout(vbox)
 
         self.input_fields.name_value.textChanged.connect(self.on_boiler_power_kW_value_changed)
 
         self.action_button.action_button.clicked.connect(self.on_boiler_power_kW_value_change)
+
+
+    def update_plot(self, boiler):
+
+        self.mpl.axes.cla()
+        self.mpl.update_data(boiler=boiler, hours=boiler.days*24)
+
+        # Trigger the canvas to update and redraw.
+        self.mpl.draw()
 
 
     @Slot(str)
@@ -150,8 +188,8 @@ class App(QMainWindow):
         boiler.calculate()
         boiler.create_df()
 
-        print(f" имя бойлера  : {boiler.name} ")  
-        print(boiler.data.head(5))  
+        self.update_plot(boiler=boiler)
+
 
 
 if __name__ == '__main__':
