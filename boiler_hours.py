@@ -24,7 +24,6 @@ class Boiler():
                 boiler_power_kW : int,
                 power_recircle_kW : int,
                 boiler_volume_m3 : float,
-                hw_reserve_init : float,
                 days : float,
                 consumption_by_hours_24 : list[float],
                 tw1 : int = 5,
@@ -43,7 +42,7 @@ class Boiler():
         self.boiler_power_kW = boiler_power_kW
         self.power_recircle_kW = power_recircle_kW
         self.boiler_volume_m3 = boiler_volume_m3
-        self.hw_reserve_init = hw_reserve_init
+        self.hw_reserve_init = self.boiler_volume_m3 
         self.hours = self.days * 24
         self.power_result_kW = boiler_power_kW - power_recircle_kW
         self.hw_reserve = [self.boiler_volume_m3]
