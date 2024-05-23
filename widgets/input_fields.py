@@ -1,4 +1,3 @@
-from PySide6.QtCore import Slot, Signal
 from PySide6.QtWidgets import (
     QLineEdit,
     QGridLayout,
@@ -61,15 +60,7 @@ class InputFields(QWidget):
 
         # Применяем сетку к виджетам
         self.setLayout(grid_layout)
-
-        # Подключаем слоты для отслеживания изменений в полях ввода
-    #     self.boiler_power_kW_value.textChanged.connect(self.on_boiler_power_kW_value_changed)
-        
-
-    # @Slot(str)
-    # def on_boiler_power_kW_value_changed(self, new_text):
-    #     # Здесь код, который обрабатывает новое значение мощности бойлера
-    #     print(f"Новое значение мощности бойлера: {new_text} - {type(new_text)}")        
+  
 
 
             

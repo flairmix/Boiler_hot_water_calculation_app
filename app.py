@@ -20,10 +20,12 @@ import pandas as pd
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
-from  boiler_hours import *
+from boiler_hours import *
+from widgets.canvas import *
 
 from widgets.description_field import PredefinedTextWidget, DescriptionField
 from widgets.input_fields import InputFields
+from widgets.input_fields_consumption import InputFieldsConsumption
 from widgets.action_button import ActionButton
 
 
@@ -48,79 +50,6 @@ boiler_inputs = {"name" : "calculation_name",
                 }
 
 
-
-class MplCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=24, height=8, dpi=100, hours=24, boiler=Boiler(**boiler_inputs), consumption='decrease'):
-        '''
-        consumption = 'decrease' / 'increase'
-        '''
-        fig = plt.figure(figsize=(width, height), dpi=dpi)
-        
-        hours_x = [i for i in range(0, hours)]
-
-        self.axes = fig.add_subplot(111)
-
-        for i in range(0, len(hours_x), 1):
-            if (i == 0):
-                plt.text(hours_x[i], boiler.hw_reserve_and_boil[i]+0.2, f"{round(boiler.hw_reserve_and_boil[i], 1)} м3/ч")
-            elif (i != 0 and abs(boiler.hw_reserve_and_boil[i] - boiler.hw_reserve_and_boil[i-1]) > 0.5):
-                plt.text(hours_x[i]+0.5, boiler.hw_reserve_and_boil[i]+0.2, f"{round(boiler.hw_reserve_and_boil[i], 1)} м3/ч")
-        
-        for i in range(0, len(hours_x), 1):
-            if (i == 0):
-                plt.text(hours_x[i], boiler.consumption_by_hours_24[i]-0.8, f"{round(boiler.consumption_by_hours_24[i], 1)} м3/ч")
-            elif (i != 0 and abs(boiler.consumption_by_hours_24[i] - boiler.consumption_by_hours_24[i-1]) > 0.5):
-                plt.text(hours_x[i], boiler.consumption_by_hours_24[i]-0.8, f"{round(boiler.consumption_by_hours_24[i], 1)} м3/ч")
-
-
-        self.axes.plot(hours_x, [0] * len(hours_x), "r-")
-        self.axes.plot(hours_x, boiler.consumption_by_hours_24, "b.-", label=f'Расход горячей воды из бойлера {boiler.t3_boiler} гр')
-        self.axes.plot(hours_x, boiler.hw_reserve_and_boil, "g.-", label=f'Запас воды в бойлере {boiler.t3_boiler} гр')
-        self.axes.plot(hours_x, boiler.boiler_heating_G_list, ".-", label=f'Нагрев воды бойлере до {boiler.t3_boiler} гр')
-        
-        plt.title("Запас горячей воды в бойлере")
-        plt.xlabel('hours')
-        plt.ylabel('consumption')
-        plt.grid(True)
-        plt.legend()
-
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(self,
-                                   QtWidgets.QSizePolicy.Expanding,
-                                   QtWidgets.QSizePolicy.Expanding)
-        
-
-    def update_data(self, hours=24, boiler=Boiler(**boiler_inputs), consumption='decrease'):
-        
-        hours_x = [i for i in range(0, hours)]
-        
-        for i in range(0, len(hours_x), 1):
-            if (i == 0):
-                plt.text(hours_x[i], boiler.hw_reserve_and_boil[i]+0.2, f"{round(boiler.hw_reserve_and_boil[i], 1)} м3/ч")
-            elif (i != 0 and abs(boiler.hw_reserve_and_boil[i] - boiler.hw_reserve_and_boil[i-1]) > 0.5):
-                plt.text(hours_x[i]+0.5, boiler.hw_reserve_and_boil[i]+0.2, f"{round(boiler.hw_reserve_and_boil[i], 1)} м3/ч")
-
-        for i in range(0, len(hours_x), 1):
-            if (i == 0):
-                plt.text(hours_x[i], boiler.consumption_by_hours_24[i]-0.8, f"{round(boiler.consumption_by_hours_24[i], 1)} м3/ч")
-            elif (i != 0 and abs(boiler.consumption_by_hours_24[i] - boiler.consumption_by_hours_24[i-1]) > 0.5):
-                plt.text(hours_x[i], boiler.consumption_by_hours_24[i]-0.8, f"{round(boiler.consumption_by_hours_24[i], 1)} м3/ч")
-
-
-        self.axes.plot(hours_x, [0] * len(hours_x), "r-")
-        self.axes.plot(hours_x, boiler.consumption_by_hours_24, "b.-", label=f'Расход горячей воды из бойлера {boiler.t3_boiler} гр')
-        self.axes.plot(hours_x, boiler.hw_reserve_and_boil, "g.-", label=f'Запас воды в бойлере {boiler.t3_boiler} гр')
-        self.axes.plot(hours_x, boiler.boiler_heating_G_list, ".-", label=f'Нагрев воды бойлере до {boiler.t3_boiler} гр')    
-               
-        plt.title("Запас горячей воды в бойлере")
-        plt.xlabel('hours')
-        plt.ylabel('consumption')
-        plt.grid(True)
-        plt.legend()  
-  
-
-
 class App(QMainWindow):
     def __init__(self):
         super(App, self).__init__()
@@ -134,21 +63,34 @@ class App(QMainWindow):
         self.description_field = DescriptionField(self.central_widget)
         self.input_fields = InputFields(self.central_widget)
         self.input_fields.setFixedWidth(500)
+
+        self.input_fields_consumption = InputFieldsConsumption(self.central_widget)
+        self.input_fields_consumption.setFixedWidth(200)
+
         self.action_button = ActionButton(self.central_widget)
         self.action_button.setFixedWidth(500)
-        self.mpl = MplCanvas(self.central_widget, width=24, height=12, dpi=60, boiler=boiler, hours=boiler.days*24)
+        self.mpl = MplCanvas(self.central_widget, boiler=boiler, width=24, height=12, dpi=60,  hours=boiler.days*24)
 
         # Создаем вертикальную сетку для размещения виджетов
         vbox = QVBoxLayout()
+        grid_layout = QGridLayout()
+        grid_layout.setAlignment(QtCore.Qt.AlignLeft)
+
         vbox.addWidget(self.general_description)
         vbox.addWidget(self.description_field)
-        vbox.addWidget(self.input_fields)
-        vbox.addWidget(self.action_button)
+
+        vbox.addLayout(grid_layout)
+        grid_layout.addWidget(self.input_fields, 3, 0)
+        grid_layout.addWidget(self.action_button, 4, 0)
+
+        grid_layout.addWidget(self.input_fields_consumption, 3, 1)
+
         vbox.addWidget(self.mpl)
-        
-        
-        # Применяем вертикальную сетку к центральному виджету
+
         self.central_widget.setLayout(vbox)
+        # # Применяем вертикальную сетку к центральному виджету
+        
+        # self.central_widget.setLayout(vbox)
 
         self.input_fields.name_value.textChanged.connect(self.on_boiler_power_kW_value_changed)
 
@@ -221,3 +163,4 @@ if __name__ == '__main__':
     window = App()
     window.show()
     sys.exit(app.exec())
+    # app.exec()
