@@ -10,7 +10,7 @@ from app import boiler_inputs
 
 
 class MplCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=24, height=8, dpi=100, hours=24, boiler=Boiler(**boiler_inputs), consumption='decrease'):
+    def __init__(self, parent=None, width=24, height=10, dpi=100, hours=24, boiler=Boiler(**boiler_inputs), consumption='decrease'):
         '''
         consumption = 'decrease' / 'increase'
         '''
@@ -19,6 +19,9 @@ class MplCanvas(FigureCanvas):
         hours_x = [i for i in range(0, hours)]
 
         self.axes = fig.add_subplot(111)
+        self.axes.set_xlim(left=0)
+        self.axes.set_yticks([i for i in range (-50, 50, 1)]) 
+        self.axes.set_xticks([i for i in range (0, hours, 1)]) 
 
         for i in range(0, len(hours_x), 1):
             if (i == 0):
@@ -54,6 +57,10 @@ class MplCanvas(FigureCanvas):
     def update_data(self, hours=24, boiler=Boiler(**boiler_inputs), consumption='decrease'):
         
         hours_x = [i for i in range(0, hours)]
+
+        self.axes.set_yticks([i for i in range (-50, 50, 1)]) 
+        self.axes.set_xticks([i for i in range (0, hours, 1)]) 
+        self.axes.set_xlim(left=0)
         
         for i in range(0, len(hours_x), 1):
             if (i == 0):
