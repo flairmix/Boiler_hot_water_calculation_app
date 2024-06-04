@@ -56,6 +56,26 @@ class InputFields(QWidget):
         grid_layout.addWidget(self.G_day, 9, 0)
         grid_layout.addWidget(self.G_day_value, 9, 1)
 
+        self.hours = QLabel("Часы работы", self)
+        self.hours_value = QLineEdit("24", self)
+        grid_layout.addWidget(self.hours, 10, 0)
+        grid_layout.addWidget(self.hours_value, 10, 1)
+
+        self.G_mid_hour = QLabel("Среднечасовой расход, м3/ч", self)
+        self.G_mid_hour_value = QLineEdit(str(float(self.G_day_value.text()) / float(self.hours_value.text())), self )
+        grid_layout.addWidget(self.G_mid_hour, 11, 0)
+        grid_layout.addWidget(self.G_mid_hour_value, 11, 1)
+
+        self.G_max_hour = QLabel("Максимально-часовой расход, м3/ч", self)
+        self.G_max_hour_value = QLineEdit("10", self )
+        grid_layout.addWidget(self.G_max_hour, 12, 0)
+        grid_layout.addWidget(self.G_max_hour_value, 12, 1)
+
+        self.G_min_hour = QLabel("Минимальный часовой расход, м3/ч", self)
+        self.G_min_value = QLineEdit("1", self )
+        grid_layout.addWidget(self.G_min_hour, 13, 0)
+        grid_layout.addWidget(self.G_min_value, 13, 1)
+
 
         # Применяем сетку к виджетам
         self.setLayout(grid_layout)

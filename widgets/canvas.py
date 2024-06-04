@@ -2,6 +2,8 @@
 from PySide6 import QtWidgets
 
 from matplotlib.figure import Figure
+from matplotlib import rcParams
+import matplotlib.style as mplstyle
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 from boiler_hours import *
@@ -14,6 +16,9 @@ class MplCanvas(FigureCanvas):
         '''
         consumption = 'decrease' / 'increase'
         '''
+        # rcParams['path.simplify_threshold'] = 1.0
+        mplstyle.use(['fast'])
+       
         fig = plt.figure(figsize=(width, height), dpi=dpi)
         
         hours_x = [i for i in range(0, hours)]
@@ -44,8 +49,9 @@ class MplCanvas(FigureCanvas):
         plt.title("Запас горячей воды в бойлере")
         plt.xlabel('hours')
         plt.ylabel('consumption')
-        plt.grid(True)
+        plt.grid(True, color='tab:gray')
         plt.legend() 
+        # plt.ioff()
 
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)

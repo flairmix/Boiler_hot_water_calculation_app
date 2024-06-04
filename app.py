@@ -121,7 +121,6 @@ class App(QMainWindow):
     def on_boiler_power_kW_value_change(self):
         # change
         try:
-            # boiler_inputs["name"] = self.input_fields.name_value.text() 
             boiler_inputs["boiler_power_kW"] = int( self.input_fields.boiler_power_kW_value.text() )
             boiler_inputs["power_recircle_kW"] = int( self.input_fields.power_recircle_kW_value.text() )
             boiler_inputs["boiler_volume_m3"] = float( self.input_fields.boiler_volume_m3_value.text() )
@@ -155,6 +154,9 @@ class App(QMainWindow):
             consumption[21] = - round(float( self.input_fields_consumption.hour_21_value.text()), 3)
             consumption[22] = - round(float( self.input_fields_consumption.hour_22_value.text()), 3)
             consumption[23] = - round(float( self.input_fields_consumption.hour_23_value.text()), 3)
+
+
+            self.input_fields.G_mid_hour_value.setText(str(float(self.input_fields.G_day_value.text()) / float(self.input_fields.hours_value.text())))
 
             boiler = Boiler(**boiler_inputs)
 
