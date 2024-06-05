@@ -52,6 +52,11 @@ boiler_inputs = {"name" : "calculation_name",
 class App(QMainWindow):
     def __init__(self):
         super(App, self).__init__()
+
+        boiler = Boiler(**boiler_inputs)
+        boiler.calculate()
+        boiler.create_df()
+
         self.setWindowTitle("Расчет бака-аккумулятора по часам")
         self.central_widget = QWidget()
         # self.central_widget.setMinimumWidth(500)
@@ -103,7 +108,6 @@ class App(QMainWindow):
         self.action_button.action_button.clicked.connect(self.on_boiler_power_kW_value_change)
         
         self.action_button_flow.action_button.clicked.connect(self.calculate_flow)
-
 
         self.input_fields.G_day_value.setText(str(- sum(consumption)))
         self.check_G.setText(f"Cуточный расход  = {abs(round(sum(consumption), 3))} м3/ч")
@@ -191,23 +195,6 @@ class App(QMainWindow):
 
 
 if __name__ == '__main__':
-
-    consumption_init = consumption
-  
-    boiler = Boiler(
-                    name ="расчет_1",
-                    boiler_power_kW = 450,
-                    power_recircle_kW = 193,
-                    boiler_volume_m3 = 20,
-                    days = 3,
-                    consumption_by_hours_24 = consumption_init,
-                    tw1 = 10,
-                    t3 = 65,
-                    t4 = 55,
-                    t3_boiler = 65)
-    
-    boiler.calculate()
-    boiler.create_df()
 
     app = QApplication(sys.argv)
     window = App()
