@@ -24,7 +24,7 @@ class DescriptionField(QWidget):
         super(DescriptionField, self).__init__(parent)
         self.description_label = QLabel("Description:", self)
         self.description_text = QTextEdit(self)
-        self.description_text.setFixedHeight(50)
+        self.description_text.setFixedHeight(25)
         
         # Создаем сетку для размещения виджетов
         grid_layout = QGridLayout()

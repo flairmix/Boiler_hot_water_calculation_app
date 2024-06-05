@@ -140,7 +140,7 @@ class App(QMainWindow):
             boiler_inputs["t3_boiler"] = int( self.input_fields.t3_boiler_value.text() )
 
             for i in range (0, len(self.input_fields_consumption.list_of_consumption_values)):
-                consumption[i] = - round(float(self.input_fields_consumption.list_of_consumption_values[i].text()), 3)
+                consumption[i] = - round(float(self.input_fields_consumption.list_of_consumption_values[i].text().replace(',', '.')), 3)
 
             boiler = Boiler(**boiler_inputs)
 
@@ -164,26 +164,24 @@ class App(QMainWindow):
 
             for i in range (0, len(consumption)):
                 if i in [i for i in range(6)]:
-                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_min_value.text())
-                    sum_temp += float(self.input_fields.G_min_value.text())
+                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_min_value.text().replace(',', '.'))
+                    sum_temp += float(self.input_fields.G_min_value.text().replace(',', '.'))
                 elif i in (6, 9, 10, 11, 17, 18, 21, 22, 23):
-                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_mid_hour_value.text())
-                    sum_temp += float(self.input_fields.G_mid_hour_value.text())
+                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_mid_hour_value.text().replace(',', '.'))
+                    sum_temp += float(self.input_fields.G_mid_hour_value.text().replace(',', '.'))
                 elif i in (7, 8, 19, 20):
-                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_max_hour_value.text())
-                    sum_temp += float(self.input_fields.G_max_hour_value.text())
+                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_max_hour_value.text().replace(',', '.'))
+                    sum_temp += float(self.input_fields.G_max_hour_value.text().replace(',', '.'))
 
             for i in range (12, 16):
-                self.input_fields_consumption.list_of_consumption_values[i].setText(str(round((float(self.input_fields.G_day_value.text()) - sum_temp) / 5, 3)))
+                self.input_fields_consumption.list_of_consumption_values[i].setText(str(round((float(self.input_fields.G_day_value.text().replace(',', '.')) - sum_temp) / 5, 3)))
 
 
             for i in range (0, len(self.input_fields_consumption.list_of_consumption_values)):
-                consumption[i] = - round(float(self.input_fields_consumption.list_of_consumption_values[i].text()), 3)
-
+                consumption[i] = - round(float(self.input_fields_consumption.list_of_consumption_values[i].text().replace(',', '.')), 3)
 
             self.check_G_hour.setText(f'''Cуточный расход  {self.input_fields.G_day_value.text()} == {abs(sum(consumption))} is {float(self.input_fields.G_day_value.text()) == abs(sum(consumption))} ''')
             self.check_G.setText(f"Cуточный расход  = {abs(round(sum(consumption), 3))} м3/ч")
-
 
 
         except (ValueError):
@@ -193,8 +191,6 @@ class App(QMainWindow):
 
 
 if __name__ == '__main__':
-
-    print(sum(consumption))
 
     consumption_init = consumption
   
