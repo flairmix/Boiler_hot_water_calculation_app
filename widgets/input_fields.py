@@ -67,12 +67,12 @@ class InputFields(QWidget):
         grid_layout.addWidget(self.G_mid_hour_value, 11, 1)
 
         self.G_max_hour = QLabel("Максимально-часовой расход, м3/ч", self)
-        self.G_max_hour_value = QLineEdit("10", self )
+        self.G_max_hour_value = QLineEdit("13.869", self )
         grid_layout.addWidget(self.G_max_hour, 12, 0)
         grid_layout.addWidget(self.G_max_hour_value, 12, 1)
 
         self.G_min_hour = QLabel("Минимальный часовой расход, м3/ч", self)
-        self.G_min_value = QLineEdit("1", self )
+        self.G_min_value = QLineEdit("0.487", self )
         grid_layout.addWidget(self.G_min_hour, 13, 0)
         grid_layout.addWidget(self.G_min_value, 13, 1)
 

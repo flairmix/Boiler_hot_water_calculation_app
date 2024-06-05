@@ -66,7 +66,8 @@ class InputFieldsConsumption(QWidget):
         self.hour_23 = QLabel("23 : 00", self)
         self.hour_23_value = QLineEdit("5.44", self)
 
-        
+
+
         # Создаем сетку для размещения виджетов
         grid_layout = QGridLayout()
 
@@ -125,6 +126,31 @@ class InputFieldsConsumption(QWidget):
         # Применяем сетку к виджетам
         self.setLayout(grid_layout)
   
-
+        self.list_of_consumption_values = [
+            self.hour_0_value,
+            self.hour_1_value,
+            self.hour_2_value,
+            self.hour_3_value,
+            self.hour_4_value,
+            self.hour_5_value,
+            self.hour_6_value,
+            self.hour_7_value,
+            self.hour_8_value,
+            self.hour_9_value,
+            self.hour_10_value,
+            self.hour_11_value,
+            self.hour_12_value,
+            self.hour_13_value,
+            self.hour_14_value,
+            self.hour_15_value,
+            self.hour_16_value,
+            self.hour_17_value,
+            self.hour_18_value,
+            self.hour_19_value,
+            self.hour_20_value,
+            self.hour_21_value,
+            self.hour_22_value,
+            self.hour_23_value
+        ]
 
             

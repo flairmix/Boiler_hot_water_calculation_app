@@ -66,8 +66,12 @@ class App(QMainWindow):
         self.input_fields_consumption = InputFieldsConsumption(self.central_widget)
         self.input_fields_consumption.setFixedWidth(500)
 
-        self.action_button = ActionButton(self.central_widget)
+        self.action_button = ActionButton(self.central_widget, labelButton="Обновить график")
         self.action_button.setFixedWidth(500)
+
+        self.action_button_flow = ActionButton(self.central_widget, labelButton="Расчитать расход")
+        self.action_button_flow.setFixedWidth(500)
+
         self.mpl = MplCanvas(self.central_widget, boiler=boiler, width=24, height=12, dpi=60,  hours=boiler.days*24)
 
         # Создаем вертикальную сетку для размещения виджетов
@@ -82,7 +86,8 @@ class App(QMainWindow):
         grid_layout.addWidget(self.input_fields, 3, 0)
         grid_layout.addWidget(self.input_fields_consumption, 3, 1)
 
-        grid_layout.addWidget(self.action_button, 4, 0)
+        grid_layout.addWidget(self.action_button_flow, 4, 0)
+        grid_layout.addWidget(self.action_button, 5, 0)
 
         self.check_G = QLabel(f"Cуточный расход  = {-sum(consumption)} м3/ч", self)
         grid_layout.addWidget(self.check_G, 4, 1)
@@ -90,17 +95,20 @@ class App(QMainWindow):
         self.check_G_hour = QLabel(f'''Cуточный расход  {self.input_fields.G_day_value.text()} == {abs(sum(consumption))} is {float(self.input_fields.G_day_value.text()) == abs(sum(consumption))} ''', self)
         grid_layout.addWidget(self.check_G_hour, 5, 1)
 
-
         vbox.addWidget(self.mpl)
 
+        # Применяем вертикальную сетку к центральному виджету
         self.central_widget.setLayout(vbox)
-        # # Применяем вертикальную сетку к центральному виджету
         
-        # self.central_widget.setLayout(vbox)
-
-        # self.input_fields.G_day_value.textChanged.connect(self.on_boiler_power_kW_value_changed)
-
         self.action_button.action_button.clicked.connect(self.on_boiler_power_kW_value_change)
+        
+        self.action_button_flow.action_button.clicked.connect(self.calculate_flow)
+
+
+        self.input_fields.G_day_value.setText(str(- sum(consumption)))
+        self.check_G.setText(f"Cуточный расход  = {abs(round(sum(consumption), 3))} м3/ч")
+        self.check_G_hour.setText(f'''Cуточный расход  {self.input_fields.G_day_value.text()} == {abs(sum(consumption))} is {float(self.input_fields.G_day_value.text()) == abs(sum(consumption))} ''')
+
 
 
     def update_plot(self, boiler):
@@ -117,6 +125,7 @@ class App(QMainWindow):
         # watch
         print(f"Новое значение мощности бойлера: {new_text} - {type(new_text)}")  
 
+
     @Slot(str)
     def on_boiler_power_kW_value_change(self):
         # change
@@ -130,38 +139,10 @@ class App(QMainWindow):
             boiler_inputs["t4"] = int( self.input_fields.t4_value.text() )
             boiler_inputs["t3_boiler"] = int( self.input_fields.t3_boiler_value.text() )
 
-            consumption[0] = - round(float( self.input_fields_consumption.hour_0_value.text()), 3)
-            consumption[1] = - round(float( self.input_fields_consumption.hour_1_value.text()), 3)
-            consumption[2] = - round(float( self.input_fields_consumption.hour_2_value.text()), 3)
-            consumption[3] = - round(float( self.input_fields_consumption.hour_3_value.text()), 3)
-            consumption[4] = - round(float( self.input_fields_consumption.hour_4_value.text()), 3)
-            consumption[5] = - round(float( self.input_fields_consumption.hour_5_value.text()), 3)
-            consumption[6] = - round(float( self.input_fields_consumption.hour_6_value.text()), 3)
-            consumption[7] = - round(float( self.input_fields_consumption.hour_7_value.text()), 3)
-            consumption[8] = - round(float( self.input_fields_consumption.hour_8_value.text()), 3)
-            consumption[9] = - round(float( self.input_fields_consumption.hour_9_value.text()), 3)
-            consumption[10] = - round(float( self.input_fields_consumption.hour_10_value.text()), 3)
-            consumption[11] = - round(float( self.input_fields_consumption.hour_11_value.text()), 3)
-            consumption[12] = - round(float( self.input_fields_consumption.hour_12_value.text()), 3)
-            consumption[13] = - round(float( self.input_fields_consumption.hour_13_value.text()), 3)
-            consumption[14] = - round(float( self.input_fields_consumption.hour_14_value.text()), 3)
-            consumption[15] = - round(float( self.input_fields_consumption.hour_15_value.text()), 3)
-            consumption[16] = - round(float( self.input_fields_consumption.hour_16_value.text()), 3)
-            consumption[17] = - round(float( self.input_fields_consumption.hour_17_value.text()), 3)
-            consumption[18] = - round(float( self.input_fields_consumption.hour_18_value.text()), 3)
-            consumption[19] = - round(float( self.input_fields_consumption.hour_19_value.text()), 3)
-            consumption[20] = - round(float( self.input_fields_consumption.hour_20_value.text()), 3)
-            consumption[21] = - round(float( self.input_fields_consumption.hour_21_value.text()), 3)
-            consumption[22] = - round(float( self.input_fields_consumption.hour_22_value.text()), 3)
-            consumption[23] = - round(float( self.input_fields_consumption.hour_23_value.text()), 3)
-
-
-            self.input_fields.G_mid_hour_value.setText(str(float(self.input_fields.G_day_value.text()) / float(self.input_fields.hours_value.text())))
+            for i in range (0, len(self.input_fields_consumption.list_of_consumption_values)):
+                consumption[i] = - round(float(self.input_fields_consumption.list_of_consumption_values[i].text()), 3)
 
             boiler = Boiler(**boiler_inputs)
-
-            self.check_G.setText(f"Cуточный расход  = {abs(round(sum(consumption), 3))} м3/ч")
-            self.check_G_hour.setText(f'''Cуточный расход  {self.input_fields.G_day_value.text()} == {abs(sum(consumption))} is {float(self.input_fields.G_day_value.text()) == abs(sum(consumption))} ''')
 
             boiler.calculate()
             boiler.create_df()
@@ -174,8 +155,46 @@ class App(QMainWindow):
             print("TypeError - wrong data type")
 
 
+    @Slot(str)
+    def calculate_flow(self):
+        try:
+            self.input_fields.G_mid_hour_value.setText(str(round(float(self.input_fields.G_day_value.text()) / float(self.input_fields.hours_value.text()), 3)))
+
+            sum_temp = 0
+
+            for i in range (0, len(consumption)):
+                if i in [i for i in range(6)]:
+                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_min_value.text())
+                    sum_temp += float(self.input_fields.G_min_value.text())
+                elif i in (6, 9, 10, 11, 17, 18, 21, 22, 23):
+                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_mid_hour_value.text())
+                    sum_temp += float(self.input_fields.G_mid_hour_value.text())
+                elif i in (7, 8, 19, 20):
+                    self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_max_hour_value.text())
+                    sum_temp += float(self.input_fields.G_max_hour_value.text())
+
+            for i in range (12, 16):
+                self.input_fields_consumption.list_of_consumption_values[i].setText(str(round((float(self.input_fields.G_day_value.text()) - sum_temp) / 5, 3)))
+
+
+            for i in range (0, len(self.input_fields_consumption.list_of_consumption_values)):
+                consumption[i] = - round(float(self.input_fields_consumption.list_of_consumption_values[i].text()), 3)
+
+
+            self.check_G_hour.setText(f'''Cуточный расход  {self.input_fields.G_day_value.text()} == {abs(sum(consumption))} is {float(self.input_fields.G_day_value.text()) == abs(sum(consumption))} ''')
+            self.check_G.setText(f"Cуточный расход  = {abs(round(sum(consumption), 3))} м3/ч")
+
+
+
+        except (ValueError):
+            print("ValueError - wrong value")
+        except (TypeError):
+            print("TypeError - wrong data type")
+
 
 if __name__ == '__main__':
+
+    print(sum(consumption))
 
     consumption_init = consumption
   
@@ -198,4 +217,3 @@ if __name__ == '__main__':
     window = App()
     window.show()
     sys.exit(app.exec())
-    # app.exec()

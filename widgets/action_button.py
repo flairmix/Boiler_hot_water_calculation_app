@@ -8,9 +8,9 @@ from PySide6.QtWidgets import (
 
 
 class ActionButton(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, labelButton="Calculate"):
         super(ActionButton, self).__init__(parent)
-        self.action_button = QPushButton("Calculate", self)
+        self.action_button = QPushButton(labelButton, self)
         self.action_button.setFixedWidth(200)
 
         # Создаем сетку для размещения виджетов
