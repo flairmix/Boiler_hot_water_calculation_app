@@ -177,7 +177,7 @@ class App(QMainWindow):
                     self.input_fields_consumption.list_of_consumption_values[i].setText(self.input_fields.G_max_hour_value.text().replace(',', '.'))
                     sum_temp += float(self.input_fields.G_max_hour_value.text().replace(',', '.'))
 
-            for i in range (12, 16):
+            for i in range (12, 17):
                 self.input_fields_consumption.list_of_consumption_values[i].setText(str(round((float(self.input_fields.G_day_value.text().replace(',', '.')) - sum_temp) / 5, 3)))
 
 
