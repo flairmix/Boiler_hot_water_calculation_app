@@ -1,24 +1,15 @@
 import sys
-import random
 
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import QRectF, Slot
-from PySide6.QtGui import QPixmap
+from PySide6 import QtCore
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
     QApplication,
     QGridLayout,
     QLabel,
-    QLineEdit,
     QMainWindow,
     QVBoxLayout,
     QWidget,
-    QPushButton, 
-    QTextEdit
 )
-
-import pandas as pd
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 from boiler_hours import *
 from widgets.canvas import *
