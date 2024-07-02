@@ -27,4 +27,4 @@ Desktop приложение Windows
 <br>
 <br>
 <br>
-<p> Контакты:  <a href="https://t.me/flairmix"> telegram </a> </p>
+<p> Контакты:  <a href="https://t.me/flairmix" target="_blank"> telegram </a> </p>
