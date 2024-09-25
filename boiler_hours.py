@@ -43,7 +43,7 @@ class Boiler():
         self.boiler_volume_m3 = boiler_volume_m3
         self.hw_reserve_init = self.boiler_volume_m3 
         self.hours = self.days * 24
-        self.power_result_kW = boiler_power_kW - power_recircle_kW
+        self.power_result_kW = int(boiler_power_kW - power_recircle_kW)
         self.hw_reserve = [self.boiler_volume_m3]
         self.hw_reserve_and_boil = [self.hw_reserve_init]
         self.boiler_heating_G = round(heating_water_G(Q_kW=self.power_result_kW, t1=self.t3_boiler, t2=self.tw1), 2)

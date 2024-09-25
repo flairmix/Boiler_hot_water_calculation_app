@@ -68,6 +68,9 @@ class App(QMainWindow):
         self.action_button_flow = ActionButton(self.central_widget, labelButton="Расчитать расход")
         self.action_button_flow.setFixedWidth(500)
 
+        self.action_button_plot = ActionButton(self.central_widget, labelButton="Сохранить")
+        self.action_button_plot.setFixedWidth(500)
+
         self.mpl = MplCanvas(self.central_widget, boiler=boiler, width=24, height=12, dpi=60,  hours=boiler.days*24)
 
         # Создаем вертикальную сетку для размещения виджетов
@@ -85,6 +88,8 @@ class App(QMainWindow):
         grid_layout.addWidget(self.action_button_flow, 4, 0)
         grid_layout.addWidget(self.action_button, 5, 0)
 
+        grid_layout.addWidget(self.action_button_plot, 5, 2)
+
         self.check_G = QLabel(f"Cуточный расход  = {-sum(consumption)} м3/ч", self)
         grid_layout.addWidget(self.check_G, 4, 1)
 
@@ -99,6 +104,7 @@ class App(QMainWindow):
         self.action_button.action_button.clicked.connect(self.on_boiler_power_kW_value_change)
         
         self.action_button_flow.action_button.clicked.connect(self.calculate_flow)
+        self.action_button_plot.action_button.clicked.connect(self.print_plot)
 
         self.input_fields.G_day_value.setText(str(- sum(consumption)))
         self.check_G.setText(f"Cуточный расход  = {abs(round(sum(consumption), 3))} м3/ч")
@@ -116,6 +122,15 @@ class App(QMainWindow):
 
 
     @Slot(str)
+    def print_plot(self):
+
+        try:
+            self.mpl.print_figure("png_dpi.png", dpi=1200)
+        except:
+            print ("error pdf dpi")
+
+
+    @Slot(str)
     def on_boiler_power_kW_value_changed(self, new_text):
         # watch
         print(f"Новое значение мощности бойлера: {new_text} - {type(new_text)}")  
@@ -125,9 +140,9 @@ class App(QMainWindow):
     def on_boiler_power_kW_value_change(self):
         # change
         try:
-            boiler_inputs["boiler_power_kW"] = int( self.input_fields.boiler_power_kW_value.text() )
-            boiler_inputs["power_recircle_kW"] = int( self.input_fields.power_recircle_kW_value.text() )
-            boiler_inputs["boiler_volume_m3"] = float( self.input_fields.boiler_volume_m3_value.text() )
+            boiler_inputs["boiler_power_kW"] = float( self.input_fields.boiler_power_kW_value.text().replace(",", "."))
+            boiler_inputs["power_recircle_kW"] = float( self.input_fields.power_recircle_kW_value.text().replace(",", ".") )
+            boiler_inputs["boiler_volume_m3"] = float( self.input_fields.boiler_volume_m3_value.text().replace(",", ".") )
             boiler_inputs["days"] = int( self.input_fields.days_value.text() )
             boiler_inputs["tw1"] = int( self.input_fields.tw1_value.text() )
             boiler_inputs["t3"] = int( self.input_fields.t3_value.text() )
@@ -144,7 +159,7 @@ class App(QMainWindow):
 
             self.update_plot(boiler=boiler)
 
-        except (ValueError):
+        except (ValueError ):
             print("ValueError - wrong data type")
         except (TypeError):
             print("TypeError - wrong data type")
